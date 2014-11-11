@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
-public class Cell {
+class Cell {
 	private final int rowIndex;
 	private final int columnIndex;
 	private final int groupIndex;

@@ -1,5 +1,5 @@
 package sudokuSolver;
 
-public enum BoardGroup {
+public enum BoardSection {
 	ROW, COLUMN, GROUP
 }

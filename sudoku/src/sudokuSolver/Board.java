@@ -5,13 +5,12 @@ import util.*;
 
 public class Board {	
 	Cell[][] sudokuBoard;
-	Stack<LinkedList<Node>> solveStack; //Key, old value, new value
 	List<HashSet<Integer>> row;
 	List<HashSet<Integer>> column;
 	List<HashSet<Integer>> group;
 	final Set<Integer> solved = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
 	private boolean isBruteForced = false;
-	private static final int BOARD_LENGTH = 9;
+	private static final int LENGTH = 9;
 	
 	public void makeBoard(int[][] sourceArray) {
 		int groupIndex = 0;
@@ -36,11 +35,10 @@ public class Board {
 	
 	public Board() {
 		sudokuBoard = new Cell[9][9];	
-		solveStack = new Stack<ThreeTuple<Integer, Integer, Integer>>();
 		row = new ArrayList<HashSet<Integer>>();
 		column = new ArrayList<HashSet<Integer>>();
 		group = new ArrayList<HashSet<Integer>>();
-		for(int i = 0; i < sudokuBoard.length; i++) {
+		for(int i = 0; i < LENGTH; i++) {
 			row.add(new HashSet<Integer>());
 			column.add(new HashSet<Integer>());
 			group.add(new HashSet<Integer>());
@@ -51,9 +49,9 @@ public class Board {
 		Set<Integer> union = new HashSet<Integer>();
 		Set<Integer> possible = new HashSet<Integer>(solved);
 		int groupIndex = 0;
-		for(int i = 0; i < sudokuBoard.length; i++) {
+		for(int i = 0; i < LENGTH; i++) {
 			groupIndex = (i / 3) * 3;
-			for(int j = 0; j < sudokuBoard.length; j++) {
+			for(int j = 0; j < LENGTH; j++) {
 				if(j == 3) 
 					groupIndex++;
 				if(j == 6)
@@ -72,7 +70,7 @@ public class Board {
 		}		
 	}
 	
-	public boolean checkCanOptimize(int index, BoardGroup bg) {
+	public boolean checkCanOptimize(int index, BoardSection bg) {
 		switch(bg) {
 			case ROW:
 				if(row.get(index).containsAll(solved))
@@ -98,7 +96,7 @@ public class Board {
 		return true;
 	}
 	
-	public boolean checkSolved(int index, BoardGroup bg) {
+	public boolean checkSolved(int index, BoardSection bg) {
 		switch(bg) {
 			case ROW:
 				if(row.get(index).containsAll(solved))
@@ -122,7 +120,7 @@ public class Board {
 		Set<Integer> union = new HashSet<Integer>();
 		Set<Integer> possible = new HashSet<Integer>(solved);
 		int index = 0, baseRowIndex = 0, baseColumnIndex = 0;
-		for(int i = 0; i < sudokuBoard.length; i++) {
+		for(int i = 0; i < LENGTH; i++) {
 			index = (rowIndex / 3) * 3 + i / 3;
 			if(sudokuBoard[rowIndex][i].getCanModify()) {  //If not set by generator
 				union.addAll(row.get(rowIndex));
@@ -165,8 +163,8 @@ public class Board {
 	}
 	
 	public void printBoard() {
-		for(int i = 0; i < sudokuBoard.length; i++) {
-			for(int j = 0; j < sudokuBoard.length; j++) {
+		for(int i = 0; i < LENGTH; i++) {
+			for(int j = 0; j < LENGTH; j++) {
 				System.out.print(sudokuBoard[i][j].getValue());
 				System.out.print(" ");
 			}
@@ -175,8 +173,8 @@ public class Board {
 	}
 	
 	public void printPossibleValues() {
-		for(int i = 0; i < sudokuBoard.length; i++) {
-			for(int j = 0; j < sudokuBoard.length; j++) {
+		for(int i = 0; i < LENGTH; i++) {
+			for(int j = 0; j < LENGTH; j++) {
 				if(!sudokuBoard[i][j].getIsSolved()) {
 					System.out.println("Cell: " + i + j);
 					System.out.println(sudokuBoard[i][j].getPossibleValues());
@@ -186,14 +184,14 @@ public class Board {
 	}
 	
 	public void printGroups() {
-		for(int i = 0; i < sudokuBoard.length; i++) {
+		for(int i = 0; i < LENGTH; i++) {
 			System.out.println(group.get(i));
 		}
 	}
 	
 	public boolean checkSolution() {
-		for(int i = 0; i < sudokuBoard.length; i++) {
-			for(int j = 0; j < sudokuBoard.length; j++) {
+		for(int i = 0; i < LENGTH; i++) {
+			for(int j = 0; j < LENGTH; j++) {
 				if(!sudokuBoard[i][j].getIsSolved())
 					return false;									
 			}
@@ -204,7 +202,7 @@ public class Board {
 	}
 	
 	private boolean verifySolution() {
-		for(int i = 0; i < sudokuBoard.length; i++) {
+		for(int i = 0; i < LENGTH; i++) {
 			if(!row.get(i).containsAll(solved))
 				return false;
 			if(!column.get(i).containsAll(solved))
@@ -224,7 +222,7 @@ public class Board {
 	
 	public boolean forceInsert(int rowIndex, int columnIndex, int value) {
 		int key = 10 * rowIndex + columnIndex;
-		solveStack.push(new ThreeTuple<Integer, Integer, Integer>(key, getValue(rowIndex, columnIndex), value));
+		//solveStack.push(new ThreeTuple<Integer, Integer, Integer>(key, getValue(rowIndex, columnIndex), value));
 		return insert(rowIndex, columnIndex, value);		
 	}
 	
@@ -233,9 +231,9 @@ public class Board {
 	}
 	
 	public boolean forceDelete(int rowIndex, int columnIndex, int value) {
-		ThreeTuple<Integer, Integer, Integer> failed = solveStack.pop();
-		TwoTuple<Integer, Integer> index = getIndexFromKey(failed.first);
-		delete(index.first, index.second);
+		//ThreeTuple<Integer, Integer, Integer> failed = solveStack.pop();
+		//TwoTuple<Integer, Integer> index = getIndexFromKey(failed.first);
+		/*delete(index.first, index.second);
 		if(sudokuBoard[index.first][index.second].removePossibleValue(failed.third)) {
 			Set<Integer> x = sudokuBoard[index.first][index.second].getPossibleValues();
 			if(x.size() == 1) {
@@ -243,7 +241,7 @@ public class Board {
 					insert(index.first, index.second, element);
 				return true;
 			}				
-		}		
+		}		*/
 		return false;
 	}
 	
@@ -280,11 +278,11 @@ public class Board {
 		boolean b = true;
 		out:
 		while(true) {
-			for(int i = 0; i < sudokuBoard.length; i++) {				
-				if(checkSolved(i, BoardGroup.ROW))
+			for(int i = 0; i < LENGTH; i++) {				
+				if(checkSolved(i, BoardSection.ROW))
 					continue;
-				for(int j = 0; j < sudokuBoard.length; j++) {
-					if(checkSolved(j, BoardGroup.COLUMN))
+				for(int j = 0; j < LENGTH; j++) {
+					if(checkSolved(j, BoardSection.COLUMN))
 						continue;
 					//System.out.println("Checking " + i + j);
 					if(sudokuBoard[i][j].getCanModify() && !sudokuBoard[i][j].getIsSolved()) {
@@ -300,12 +298,12 @@ public class Board {
 					}					
 				}				
 			}			
-			for(int z = 0; z < BOARD_LENGTH; z++) {
-				if(checkCanOptimize(z, BoardGroup.ROW)) {
+			for(int z = 0; z < LENGTH; z++) {
+				if(checkCanOptimize(z, BoardSection.ROW)) {
 					if(optimizeRows(z))
 						continue out;
 				}
-				if(checkCanOptimize(z, BoardGroup.COLUMN)) {
+				if(checkCanOptimize(z, BoardSection.COLUMN)) {
 					if(optimizeColumns(z))
 						continue out;
 				}
@@ -369,7 +367,7 @@ public class Board {
 		HashSet<Integer> possible = new HashSet<Integer>();
 		HashSet<Integer> reducedSet = new HashSet<Integer>(sudokuBoard[rowIndex][columnIndex].getPossibleValues());
 		
-		for(int c = 0; c < sudokuBoard.length; c++) {
+		for(int c = 0; c < LENGTH; c++) {
 			if(c != columnIndex && sudokuBoard[rowIndex][c].getCanModify() && !sudokuBoard[rowIndex][c].getIsSolved()) {
 					possible.addAll(sudokuBoard[rowIndex][c].getPossibleValues());
 			}			
@@ -390,7 +388,7 @@ public class Board {
 		HashSet<Integer> possible = new HashSet<Integer>();
 		HashSet<Integer> reducedSet = new HashSet<Integer>(sudokuBoard[rowIndex][columnIndex].getPossibleValues());
 		
-		for(int r = 0; r < sudokuBoard.length; r++) {
+		for(int r = 0; r < LENGTH; r++) {
 			if(r != rowIndex && sudokuBoard[r][columnIndex].getCanModify() && !sudokuBoard[r][columnIndex].getIsSolved()) {
 					possible.addAll(sudokuBoard[r][columnIndex].getPossibleValues());
 			}			
@@ -417,21 +415,21 @@ public class Board {
 		
 		Set<Integer> opt1, opt2;
 		
-		for(int n = loop; n < BOARD_LENGTH; n++) {
+		for(int n = loop; n < LENGTH; n++) {
 			if(sudokuBoard[n][index].getIsSolved())
 				continue;
 			numVals = sudokuBoard[n][index].getNumberOfPossibleValues();
 			if(numVals == 2) {
 				opt1 = sudokuBoard[n][index].getPossibleValues();
 				loop = n;
-				for(int i = loop + 1; i < BOARD_LENGTH; i++) {
+				for(int i = loop + 1; i < LENGTH; i++) {
 					if(sudokuBoard[i][index].getIsSolved())
 						continue;
 					numVals = sudokuBoard[i][index].getNumberOfPossibleValues();
 					if(numVals == 2) {
 						opt2 = sudokuBoard[i][index].getPossibleValues();
 						if(opt1.containsAll(opt2)) {
-							for(int j = 0; j < BOARD_LENGTH; j++) {
+							for(int j = 0; j < LENGTH; j++) {
 								if((j == loop) || (j == i))
 									continue;
 								if(!sudokuBoard[j][index].getIsSolved()) {
@@ -440,7 +438,7 @@ public class Board {
 									}
 								}
 							}
-							i = BOARD_LENGTH;
+							i = LENGTH;
 						}							
 					}
 				}				
@@ -456,7 +454,7 @@ public class Board {
 		
 		Set<Integer> opt1, opt2;
 		
-		for(int n = loop; n < BOARD_LENGTH; n++) {
+		for(int n = loop; n < LENGTH; n++) {
 			if(sudokuBoard[index][n].getIsSolved())
 				continue;
 			numVals = sudokuBoard[index][n].getNumberOfPossibleValues();
@@ -464,7 +462,7 @@ public class Board {
 				opt1 = sudokuBoard[index][n].getPossibleValues();
 				System.out.println("opt1: " + opt1 + " " + n);
 				loop = n;
-				for(int i = loop + 1; i < BOARD_LENGTH; i++) {
+				for(int i = loop + 1; i < LENGTH; i++) {
 					if(sudokuBoard[index][i].getIsSolved())
 						continue;
 					numVals = sudokuBoard[index][i].getNumberOfPossibleValues();
@@ -473,7 +471,7 @@ public class Board {
 						System.out.println("opt2: " + opt2);
 						if(opt1.containsAll(opt2)) {
 							System.out.println("At: " + index + i);
-							for(int j = 0; j < BOARD_LENGTH; j++) {
+							for(int j = 0; j < LENGTH; j++) {
 								if(j == loop || j == i)
 									continue;
 								if(!sudokuBoard[index][j].getIsSolved()) {
@@ -483,14 +481,31 @@ public class Board {
 									}
 								}
 							}
-							i = BOARD_LENGTH;
+							i = LENGTH;
 						}							
 					}
 				}				
 			}
 		}		
 		return isOptimized;
+	}	
+}
+
+class Solver {
+	util.Stack<LinkedList<StackNode>> solveStack; //Key, old value, new value
+	private class StackNode {
+		public final int oldValue;
+		public final int newValue;
+		public final int rowIndex;
+		public final int columnIndex;
+		public final boolean isGuess;
+		
+		public StackNode(int oldValue, int newValue, int rowIndex, int columnIndex, boolean isGuess) {
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+			this.columnIndex = columnIndex;
+			this.rowIndex = rowIndex;
+			this.isGuess = isGuess;
+		}		
 	}
-	
-	
 }
