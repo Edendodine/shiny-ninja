@@ -1,10 +1,11 @@
 package sudokuSolver;
 import java.util.*;
 import sudokuSolver.Cell;
+import util.*;
 
 public class Board {	
 	Cell[][] sudokuBoard;
-	Stack<ThreeTuple<Integer, Integer, Integer>> solveStack; //Key, old value, new value
+	Stack<LinkedList<Node>> solveStack; //Key, old value, new value
 	List<HashSet<Integer>> row;
 	List<HashSet<Integer>> column;
 	List<HashSet<Integer>> group;

@@ -1,4 +1,5 @@
-package sudokuSolver;
+package util;
+
 import java.util.LinkedList;
 
 public class Stack<T> {
