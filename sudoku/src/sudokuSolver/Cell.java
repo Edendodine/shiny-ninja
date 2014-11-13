@@ -16,8 +16,12 @@ class Cell {
 		
 	public void setPossibleValues(Set<Integer> values) {
 		this.possibleValues = new HashSet<Integer>(values); 
-		if(possibleValues.isEmpty())
+		if(possibleValues.isEmpty() && !isSolved) {
 			hasSolution = false;
+		}
+		else {
+			hasSolution = true;
+		}
 	}
 	
 	public Set<Integer> getPossibleValues() {
@@ -31,7 +35,7 @@ class Cell {
 	public boolean removePossibleValue(int value) {
 		if(possibleValues.remove(value))
 			return true;
-		if(possibleValues.isEmpty())
+		if(possibleValues.isEmpty() && !isSolved)
 			hasSolution = false;
 		return false;
 	}
@@ -39,7 +43,7 @@ class Cell {
 	public boolean removePossibleValues(Set<Integer> value) {
 		if(possibleValues.removeAll(value))
 			return true;
-		if(possibleValues.isEmpty())
+		if(possibleValues.isEmpty() && !isSolved)
 			hasSolution = false;
 		return false;		
 	}
@@ -81,30 +85,30 @@ class Cell {
 	}
 	
 	public boolean insert(int value) {
-		//System.out.println("Insert " + value + " at " + rowIndex + columnIndex);
+		System.out.println("Insert " + value + " at " + rowIndex + columnIndex);
 		if(canModify) {
 			if(possibleValues.contains(value)) {
 				this.value = value;
 				isSolved = true;
+				return true;
 			}
 			else {
 				this.value = value;
 				isSolved = true;
-				hasSolution = false;
-				//isSolved = false;
+				hasSolution = false;				
 				//notifyInccorrect();
-			}
-			return true;  //Inserted, but not necessarily correct				
+				return false;
+			}							
 		}
 		return false;
-	}
+	}	
 	
 	public int delete() {
 		if(canModify) {
+			System.out.println("Delete " + value + " at " + rowIndex + columnIndex);
 			int result = value;
 			value = 0;
-			isSolved = false;
-			hasSolution = true;
+			isSolved = false;			
 			return result;
 		}
 		return 0;
