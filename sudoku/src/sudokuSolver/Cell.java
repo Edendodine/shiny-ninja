@@ -1,18 +1,18 @@
 package sudokuSolver;
-import java.util.List;
+//import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
 class Cell {
 	private final int rowIndex;
 	private final int columnIndex;
-	private final int groupIndex;
+	//private final int groupIndex;
 	private int value;
 	private boolean canModify = true;
 	private boolean isSolved = false;
 	private boolean hasSolution = true;
 	private Set<Integer> possibleValues;
-	private int key;
+	//private int key;
 		
 	public void setPossibleValues(Set<Integer> values) {
 		this.possibleValues = new HashSet<Integer>(values); 
@@ -117,12 +117,12 @@ class Cell {
 	protected Cell(int rowIndex, int columnIndex, int groupIndex, int value) {
 		this.columnIndex = columnIndex;
 		this.rowIndex = rowIndex;
-		this.groupIndex = groupIndex;
+		//this.groupIndex = groupIndex;
 		if(value > 0 && value <= 9)
 			this.value = value;
 		else
 			value = 0;
-		key = 10 * rowIndex + columnIndex;
+		//key = 10 * rowIndex + columnIndex;
 		this.possibleValues = new HashSet<Integer>();
 	}		
 }

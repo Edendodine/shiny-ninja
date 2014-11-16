@@ -13,6 +13,7 @@ public class Board {
 	
 	public void makeBoard(int[][] sourceArray) {
 		int groupIndex = 0;
+		int value = 0;
 		for(int i = 0; i < 9; i++) {
 			groupIndex = (i / 3) * 3; //Integer Division			
 			for(int j = 0; j < 9; j++) {
@@ -21,11 +22,12 @@ public class Board {
 				if(j == 6)
 					groupIndex++;
 				sudokuBoard[i][j] = new Cell(i, j, groupIndex, 0);
-				sudokuBoard[i][j].setInitialValue(sourceArray[i][j]);
-				if(sourceArray[i][j] != 0) {
-					row.get(i).add(sourceArray[i][j]);
-					column.get(j).add(sourceArray[i][j]);
-					group.get(groupIndex).add(sourceArray[i][j]);
+				value = sourceArray[i][j];
+				sudokuBoard[i][j].setInitialValue(value);
+				if(value != 0) {
+					row.get(i).add(value);
+					column.get(j).add(value);
+					group.get(groupIndex).add(value);
 				}								
 			}			
 		}
