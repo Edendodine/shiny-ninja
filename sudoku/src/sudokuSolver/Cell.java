@@ -66,13 +66,14 @@ class Cell {
 		if(canModify) {
 			value = 0;
 			isSolved = false;
+			hasSolution = true;
 		}
 	}
 	
 	public void setValue(int value) {
-		this.value = value;
-		if(value != 0)
-			isSolved = true;
+		if(canModify) {
+			this.value = value;
+		}		
 	}
 	
 	public int getValue() { 
@@ -92,7 +93,7 @@ class Cell {
 	}
 	
 	public boolean insert(int value) {
-		System.out.println("Insert " + value + " at " + rowIndex + columnIndex);
+		//System.out.println("Insert " + value + " at " + rowIndex + columnIndex);
 		if(canModify) {
 			if(possibleValues.contains(value)) {
 				this.value = value;
@@ -112,7 +113,7 @@ class Cell {
 	
 	public int delete() {
 		if(canModify) {
-			System.out.println("Delete " + value + " at " + rowIndex + columnIndex);
+			//System.out.println("Delete " + value + " at " + rowIndex + columnIndex);
 			int result = value;
 			value = 0;
 			isSolved = false;			

@@ -11,8 +11,9 @@ public class tests {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Board mine = new Board();
-		Random rand = new Random(53);
+		Random rand = new Random();
 		
+		/*
 		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(5, 7, 0, 0, 1, 0, 0, 6, 0));
 		ArrayList<Integer> row2 = new ArrayList<Integer>(Arrays.asList(0, 9, 0, 0, 6, 0, 0, 7, 0));
 		ArrayList<Integer> row3 = new ArrayList<Integer>(Arrays.asList(0, 8, 0, 0, 3, 0, 0, 9, 0));
@@ -22,7 +23,7 @@ public class tests {
 		ArrayList<Integer> row7 = new ArrayList<Integer>(Arrays.asList(0, 3, 0, 0, 5, 0, 0, 2, 0));
 		ArrayList<Integer> row8 = new ArrayList<Integer>(Arrays.asList(0, 5, 0, 0, 7, 0, 0, 3, 0));
 		ArrayList<Integer> row9 = new ArrayList<Integer>(Arrays.asList(0, 4, 0, 0, 8, 0, 0, 1, 0));
-		
+		*/
 		
 		/*
 		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(0, 7, 0, 2, 0, 0, 3, 0, 0));
@@ -34,7 +35,7 @@ public class tests {
 		ArrayList<Integer> row7 = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 1, 9, 0, 0, 0, 0));
 		ArrayList<Integer> row8 = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 8, 0, 0, 5, 7, 0));
 		ArrayList<Integer> row9 = new ArrayList<Integer>(Arrays.asList(0, 0, 8, 0, 0, 6, 0, 2, 0));		
-		
+		*/
 		
 		
 		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(6, 0, 2, 0, 0, 8, 0, 3, 0));
@@ -47,7 +48,7 @@ public class tests {
 		ArrayList<Integer> row8 = new ArrayList<Integer>(Arrays.asList(3, 0, 5, 6, 2, 0, 1, 0, 9));
 		ArrayList<Integer> row9 = new ArrayList<Integer>(Arrays.asList(0, 1, 0, 8, 0, 0, 5, 0, 3));		
 		
-		
+		/*
 		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(8, 0, 0, 7, 0, 0, 0, 0, 3));
 		ArrayList<Integer> row2 = new ArrayList<Integer>(Arrays.asList(0, 7, 0, 9, 0, 0, 8, 0, 0));
 		ArrayList<Integer> row3 = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 8, 0, 6, 0, 1, 0));
@@ -112,19 +113,28 @@ public class tests {
 		//System.out.println("test");
 		mine.makeBoard(test);
 		//mine.printPossibleValues();
-		mine.solve();
-		//mine.printSolveableCells();
-		mine.printBoard();
-		//mine.printPossibleValues();
+		mine.solve(true);
+		mine.printBoard();		
 		
+		/*int i = 20;
+		while(i-- > 0) {
+			mine.solve(false);
+		//mine.printSolveableCells();
+		//mine.printBoard();
+		
+			mine.clearBoard();
+			mine.solve(true);
+			mine.clearBoard();
+		}
+		//mine.printBoard();
+		//mine.printPossibleValues();
+		*/
 		/*
 		mine.printPossibleValues();
 		
 		System.out.println();
 		System.out.println();
-		mine.printGroups();*/
-		
-
+		mine.printGroups();*/		
 	}
 
 }

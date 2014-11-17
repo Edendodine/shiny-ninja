@@ -1,33 +1,29 @@
 package sudokuSolver;
 import java.util.*;
 import sudokuSolver.Cell;
-import util.*;
+//import util.*;
 
 public class Board {	
 	Cell[][] sudokuBoard;
-	List<HashSet<Integer>> row;
-	List<HashSet<Integer>> column;
-	List<HashSet<Integer>> group;
+	List<HashSet<Integer>> rowSets;
+	List<HashSet<Integer>> columnSets;
+	List<HashSet<Integer>> groupSets;
 	final Set<Integer> solved = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
 	private static final int LENGTH = 9;
 	
 	public void makeBoard(int[][] sourceArray) {
 		int groupIndex = 0;
 		int value = 0;
-		for(int i = 0; i < 9; i++) {
-			groupIndex = (i / 3) * 3; //Integer Division			
-			for(int j = 0; j < 9; j++) {
-				if(j == 3)
-					groupIndex++;
-				if(j == 6)
-					groupIndex++;
-				sudokuBoard[i][j] = new Cell(i, j, groupIndex, 0);
-				value = sourceArray[i][j];
-				sudokuBoard[i][j].setInitialValue(value);
+		for(int row = 0; row < 9; row++) {
+			for(int column = 0; column < 9; column++) {
+				groupIndex = getGroupIndex(row, column);
+				sudokuBoard[row][column] = new Cell(row, column, groupIndex, 0);
+				value = sourceArray[row][column];
+				sudokuBoard[row][column].setInitialValue(value);
 				if(value != 0) {
-					row.get(i).add(value);
-					column.get(j).add(value);
-					group.get(groupIndex).add(value);
+					rowSets.get(row).add(value);
+					columnSets.get(column).add(value);
+					groupSets.get(groupIndex).add(value);
 				}								
 			}			
 		}
@@ -35,24 +31,32 @@ public class Board {
 	}
 	
 	public void clearBoard() {
-		for(int i = 0; i < LENGTH; i++) {
-			for(int j = 0; j < LENGTH; j++) {
-				if(sudokuBoard[i][j].getCanModify()) {
-					sudokuBoard[i][j].clear();
+		int group = 0;
+		int oldValue = 0;
+		for(int row = 0; row < LENGTH; row++) {
+			for(int column = 0; column < LENGTH; column++) {
+				if(sudokuBoard[row][column].getCanModify()) {
+					oldValue = sudokuBoard[row][column].getValue();
+					sudokuBoard[row][column].clear();
+					group = getGroupIndex(row, column);
+					rowSets.get(row).remove(oldValue);
+					columnSets.get(column).remove(oldValue);
+					groupSets.get(group).remove(oldValue);
 				}
-			}
+			}			
 		}
+		generateCellLists();
 	}
 	
 	public Board() {
 		sudokuBoard = new Cell[9][9];	
-		row = new ArrayList<HashSet<Integer>>();
-		column = new ArrayList<HashSet<Integer>>();
-		group = new ArrayList<HashSet<Integer>>();
+		rowSets = new ArrayList<HashSet<Integer>>();
+		columnSets = new ArrayList<HashSet<Integer>>();
+		groupSets = new ArrayList<HashSet<Integer>>();
 		for(int i = 0; i < LENGTH; i++) {
-			row.add(new HashSet<Integer>());
-			column.add(new HashSet<Integer>());
-			group.add(new HashSet<Integer>());
+			rowSets.add(new HashSet<Integer>());
+			columnSets.add(new HashSet<Integer>());
+			groupSets.add(new HashSet<Integer>());
 		}
 	}	
 	
@@ -60,20 +64,16 @@ public class Board {
 		Set<Integer> union = new HashSet<Integer>();
 		Set<Integer> possible = new HashSet<Integer>(solved);
 		int groupIndex = 0;
-		for(int i = 0; i < LENGTH; i++) {
-			groupIndex = (i / 3) * 3;
-			for(int j = 0; j < LENGTH; j++) {
-				if(j == 3) 
-					groupIndex++;
-				if(j == 6)
-					groupIndex++;
-				if(sudokuBoard[i][j].getCanModify()) {  //If not set by generator
-					union.addAll(row.get(i));
-					union.addAll(column.get(j));
-					union.addAll(group.get(groupIndex));
+		for(int row = 0; row < LENGTH; row++) {			
+			for(int column = 0; column < LENGTH; column++) {
+				groupIndex = getGroupIndex(row, column);
+				if(sudokuBoard[row][column].getCanModify()) {  //If not set by generator
+					union.addAll(rowSets.get(row));
+					union.addAll(columnSets.get(column));
+					union.addAll(groupSets.get(groupIndex));
 					possible.removeAll(union);
 				
-					sudokuBoard[i][j].setPossibleValues(possible);
+					sudokuBoard[row][column].setPossibleValues(possible);
 					possible.addAll(solved);
 					union.removeAll(solved);
 				}
@@ -83,16 +83,17 @@ public class Board {
 	
 	
 	
-	private void updateCellLists(int rowIndex, int columnIndex, int groupIndex) {
+	private void updateCellLists(int rowIndex, int columnIndex) {
 		Set<Integer> union = new HashSet<Integer>();
 		Set<Integer> possible = new HashSet<Integer>(solved);
 		int index = 0, baseRowIndex = 0, baseColumnIndex = 0;
+		int groupIndex = getGroupIndex(rowIndex, columnIndex);
 		for(int i = 0; i < LENGTH; i++) {
 			index = (rowIndex / 3) * 3 + i / 3;
 			if(sudokuBoard[rowIndex][i].getCanModify()) {  //If not set by generator
-				union.addAll(row.get(rowIndex));
-				union.addAll(column.get(i));
-				union.addAll(group.get(index));
+				union.addAll(rowSets.get(rowIndex));
+				union.addAll(columnSets.get(i));
+				union.addAll(groupSets.get(index));
 				possible.removeAll(union);
 			
 				sudokuBoard[rowIndex][i].setPossibleValues(possible);
@@ -101,9 +102,9 @@ public class Board {
 			}
 			index = (i / 3) * 3 + columnIndex / 3;
 			if(sudokuBoard[i][columnIndex].getCanModify()) {  //If not set by generator
-				union.addAll(row.get(i));
-				union.addAll(column.get(columnIndex));
-				union.addAll(group.get(index));
+				union.addAll(rowSets.get(i));
+				union.addAll(columnSets.get(columnIndex));
+				union.addAll(groupSets.get(index));
 				possible.removeAll(union);
 			
 				sudokuBoard[i][columnIndex].setPossibleValues(possible);
@@ -116,9 +117,9 @@ public class Board {
 		for(int x = baseRowIndex; x < baseRowIndex + 3; x++) {
 			for(int y = baseColumnIndex; y < baseColumnIndex + 3; y++) {
 				if(sudokuBoard[x][y].getCanModify()) {  //If not set by generator
-					union.addAll(row.get(x));
-					union.addAll(column.get(y));
-					union.addAll(group.get(groupIndex));
+					union.addAll(rowSets.get(x));
+					union.addAll(columnSets.get(y));
+					union.addAll(groupSets.get(groupIndex));
 					possible.removeAll(union);
 				
 					sudokuBoard[x][y].setPossibleValues(possible);
@@ -130,9 +131,9 @@ public class Board {
 	}
 	
 	public void printBoard() {
-		for(int i = 0; i < LENGTH; i++) {
-			for(int j = 0; j < LENGTH; j++) {
-				System.out.print(sudokuBoard[i][j].getValue());
+		for(int row = 0; row < LENGTH; row++) {
+			for(int column = 0; column < LENGTH; column++) {
+				System.out.print(sudokuBoard[row][column].getValue());
 				System.out.print(" ");
 			}
 			System.out.println();
@@ -140,30 +141,30 @@ public class Board {
 	}
 	
 	public void printPossibleValues() {
-		for(int i = 0; i < LENGTH; i++) {
-			for(int j = 0; j < LENGTH; j++) {
-				if(!sudokuBoard[i][j].getIsSolved()) {
-					System.out.println("Cell: " + i + j);
-					System.out.println(sudokuBoard[i][j].getPossibleValues());
+		for(int row = 0; row < LENGTH; row++) {
+			for(int column = 0; column < LENGTH; column++) {
+				if(!sudokuBoard[row][column].getIsSolved()) {
+					System.out.println("Cell: " + row + column);
+					System.out.println(sudokuBoard[row][column].getPossibleValues());
 				}				
 			}
 		}	
 	}
 	
 	public void printSolveableCells() {
-		for(int i = 0; i < LENGTH; i++) {
-			for(int j = 0; j < LENGTH; j++) {
-				if(sudokuBoard[i][j].canSolve()) {
-					System.out.println("Cell: " + i + j);
-					System.out.println(sudokuBoard[i][j].getPossibleValues());
+		for(int row = 0; row < LENGTH; row++) {
+			for(int column = 0; column < LENGTH; column++) {
+				if(sudokuBoard[row][column].canSolve()) {
+					System.out.println("Cell: " + row + column);
+					System.out.println(sudokuBoard[row][column].getPossibleValues());
 				}				
 			}
 		}
 	}
 	
 	public void printGroups() {
-		for(int i = 0; i < LENGTH; i++) {
-			System.out.println(group.get(i));
+		for(int group = 0; group < LENGTH; group++) {
+			System.out.println(groupSets.get(group));
 		}
 	}	
 	
@@ -179,18 +180,8 @@ public class Board {
 	}
 				
 	private void updatePossibleValues(int rowIndex, int columnIndex, int value, boolean isInsertion) {
-		int groupIndex = (rowIndex / 3) * 3 + columnIndex / 3;
-		if(isInsertion) {
-			row.get(rowIndex).add(value);
-			column.get(columnIndex).add(value);
-			group.get(groupIndex).add(value);
-		}
-		else {
-			row.get(rowIndex).remove(value);
-			column.get(columnIndex).remove(value);
-			group.get(groupIndex).remove(value);
-		}
-		updateCellLists(rowIndex, columnIndex, groupIndex);		
+		updateSets(rowIndex, columnIndex, value, isInsertion);
+		updateCellLists(rowIndex, columnIndex);		
 	}
 	
 	public boolean delete(int rowIndex, int columnIndex) {
@@ -200,13 +191,41 @@ public class Board {
 		return result != 0;		
 	}	
 	
-	public int getGroupIndex(int r, int c) {
-		return (r / 3) * 3 + c / 3;
+	public int getGroupIndex(int row, int column) {
+		return (row / 3) * 3 + column / 3;
 	}
 	
-	public boolean solve() {
+	public boolean solve(boolean useSlowSolver) {
 		Solver solver = new Solver();
-		return solver.solve();
+		if(useSlowSolver) {
+			long startTime = System.nanoTime();
+			solver.slowSolve();	
+			long endTime = System.nanoTime();
+			double duration = (double)(endTime - startTime) / 1000000.0;
+			System.out.println("SlowSolver took: " + duration);
+		}
+		else {
+			long startTime = System.nanoTime();
+			solver.solve();
+			long endTime = System.nanoTime();			
+			double duration = (double)(endTime - startTime) / 1000000.0;
+			System.out.println("Solver took: " + duration);
+		}		
+		return true; 
+	}
+	
+	private void updateSets(int rowIndex, int columnIndex, int value, boolean isInsertion) {
+		int groupIndex = getGroupIndex(rowIndex, columnIndex);
+		if(isInsertion) {
+			rowSets.get(rowIndex).add(value);
+			columnSets.get(columnIndex).add(value);
+			groupSets.get(groupIndex).add(value);
+		}
+		else {
+			rowSets.get(rowIndex).remove(value);
+			columnSets.get(columnIndex).remove(value);
+			groupSets.get(groupIndex).remove(value);
+		}
 	}
 	
 	private class Solver {
@@ -214,23 +233,107 @@ public class Board {
 		LinkedList<StackNode> values = new LinkedList<StackNode>();
 		private boolean isBruteForced = false;
 		private class StackNode {
-			public final int oldValue;
-			public final int newValue;
+			public final int value;
 			public final int rowIndex;
 			public final int columnIndex;
 						
-			public StackNode(int oldValue, int newValue, int rowIndex, int columnIndex) {
-				this.oldValue = oldValue;
-				this.newValue = newValue;
+			public StackNode(int value, int rowIndex, int columnIndex) {
+				this.value = value;
 				this.columnIndex = columnIndex;
 				this.rowIndex = rowIndex;				
 			}		
 		}
 		
+		private Set<Integer> getValues(int rowIndex, int columnIndex) {
+			int groupIndex = getGroupIndex(rowIndex, columnIndex);
+			Set<Integer> eliminated = new HashSet<Integer>();
+			Set<Integer> result = new HashSet<Integer>(solved);
+			eliminated.addAll(rowSets.get(rowIndex));
+			eliminated.addAll(columnSets.get(columnIndex));
+			eliminated.addAll(groupSets.get(groupIndex));
+			result.removeAll(eliminated);
+			return result;
+		}
+		
+		private int getBaseCell() {
+			for(int row = 0; row < LENGTH; row++) {
+				for(int column = 0; column < LENGTH; column++) {
+					if(sudokuBoard[row][column].getCanModify()) {
+						return row * 9 + column;
+					}
+				}
+			}
+			return -1;
+		}
+		
+		private boolean slowSolve() {
+			Set<Integer> possible = null;
+			final int END = LENGTH * LENGTH;
+			int oldValue = 0;
+			int row = 0;
+			int column = 0;
+			int baseCell = getBaseCell();
+			int cell = baseCell;
+			boolean isBackTrack = false;
+						
+			out:
+			while(cell != END && cell >= baseCell) {
+				row = cell / 9;
+				column = cell % 9;				
+				//System.out.println("AT: " + row + column + " cell: " + cell);
+				if(sudokuBoard[row][column].getCanModify()) {
+					oldValue = sudokuBoard[row][column].getValue();
+					possible = getValues(row, column);
+					//System.out.println(possible + " and " + oldValue);
+					if(possible.isEmpty()) {
+						if(oldValue != 0) {
+							updateSets(row, column, oldValue, false);
+							sudokuBoard[row][column].setValue(0);
+							cell--;
+							isBackTrack = true;
+							continue;
+						}
+						else {
+							cell--;
+							isBackTrack = true;
+							continue;
+						}
+					}
+					
+					int nextGuess = oldValue + 1;
+					for(int element : possible) {
+						//System.out.println(possible + " current: " + element);
+						if(element >= nextGuess) {
+							sudokuBoard[row][column].setValue(element);
+							updateSets(row, column, oldValue, false);
+							updateSets(row, column, element, true);
+							cell++;
+							isBackTrack = false;
+							continue out;
+						}
+					}					
+					
+					//Possible value, but we exhausted it					
+					sudokuBoard[row][column].setValue(0);
+					updateSets(row, column, oldValue, false);
+					cell--;
+					isBackTrack = true;
+					continue;
+				}
+				if(isBackTrack) {
+					cell--;
+				}
+				else {
+					cell++;
+				}
+			}
+			return cell == END;
+		}
+		
 		private boolean checkCanSolve() {
-			for(int i = 0; i < LENGTH; i++) {
-				for(int j = 0; j < LENGTH; j++) {
-					if(!sudokuBoard[i][j].canSolve()) {
+			for(int row = 0; row < LENGTH; row++) {
+				for(int column = 0; column < LENGTH; column++) {
+					if(!sudokuBoard[row][column].canSolve()) {
 						return false;
 					}
 				}
@@ -239,9 +342,9 @@ public class Board {
 		}
 		
 		public boolean checkSolution() {
-			for(int i = 0; i < LENGTH; i++) {
-				for(int j = 0; j < LENGTH; j++) {
-					if(!sudokuBoard[i][j].getIsSolved())
+			for(int row = 0; row < LENGTH; row++) {
+				for(int column = 0; column < LENGTH; column++) {
+					if(!sudokuBoard[row][column].getIsSolved())
 						return false;					
 				}
 			}
@@ -253,8 +356,11 @@ public class Board {
 		private void deBork() {
 			if(values.isEmpty()) {
 				if(solveStack.empty()) {
-					System.out.println("He's dead Jim!");
-					System.exit(1);
+					/*System.out.println("He's dead Jim!");
+					System.exit(1);*/
+					clearBoard();
+					slowSolve();
+					return;
 				}
 				values = solveStack.pop();				
 			}
@@ -271,23 +377,23 @@ public class Board {
 			}
 			//Otherwise, try a new value
 			Set<Integer> possible = sudokuBoard[helper.rowIndex][helper.columnIndex].getPossibleValues();
-			for(int i = helper.newValue + 1; i <= LENGTH; i++) {
-				if(possible.contains(i)) {
-					forceInsert(helper.rowIndex, helper.columnIndex, i);					
+			for(int element : possible) {
+				if(element > helper.value) {
+					forceInsert(helper.rowIndex, helper.columnIndex, element);					
 					return true;
-				}					
-			}
+				}
+			}			
 			//We can try no new value
 			return false;
 		}
 		
 		private boolean verifySolution() {
 			for(int i = 0; i < LENGTH; i++) {
-				if(!row.get(i).containsAll(solved))
+				if(!rowSets.get(i).containsAll(solved))
 					return false;
-				if(!column.get(i).containsAll(solved))
+				if(!columnSets.get(i).containsAll(solved))
 					return false;
-				if(!group.get(i).containsAll(solved))
+				if(!groupSets.get(i).containsAll(solved))
 					return false;
 			}
 			return true;
@@ -303,7 +409,7 @@ public class Board {
 				//Simple methods did not work
 				
 				if(!isBruteForced) {
-					System.out.println("Brute Forcing this mofo");
+					//System.out.println("Brute Forcing this mofo");
 					isBruteForced = true;
 					if(!bruteForce()) {
 						return false;
@@ -339,55 +445,54 @@ public class Board {
 			
 			Set<Integer> possible;
 			int rIndex = -1, cIndex = -1;
-				
-			for(int i = 0; i < LENGTH; i++) {
-				for(int j = 0; j < LENGTH; j++) {
-					if(!sudokuBoard[i][j].getIsSolved()) {
-						rIndex = i;
-						cIndex = j;
-						i = 10;
-						j = 10;
+			
+			out:
+			for(int row = 0; row < LENGTH; row++) {
+				for(int column = 0; column < LENGTH; column++) {
+					if(!sudokuBoard[row][column].getIsSolved()) {
+						rIndex = row;
+						cIndex = column;
+						break out;
 					}						
 				}
 			}
+			
 			if(rIndex != -1 && cIndex != -1) {
 				possible = sudokuBoard[rIndex][cIndex].getPossibleValues();
-				for(int x = 1; x <= LENGTH; x++) {
-					if(possible.contains(x)) {
-						forceInsert(rIndex, cIndex, x);
-						return true;
-					}
+				for(int element : possible) {
+					forceInsert(rIndex, cIndex, element);
+					return true;
 				}
 			}
 			return false;			
 		}
 		
 		private void simpleSolve() {
-			Set<Integer> x;
+			Set<Integer> values;
 			
 			out:
 			while(true) {
-				for(int i = 0; i < LENGTH; i++) {				
-					if(checkSolved(i, BoardSection.ROW))
+				for(int row = 0; row < LENGTH; row++) {				
+					if(checkSolved(row, BoardSection.ROW))
 						continue;
-					for(int j = 0; j < LENGTH; j++) {
-						if(checkSolved(j, BoardSection.COLUMN))
+					for(int column = 0; column < LENGTH; column++) {
+						if(checkSolved(column, BoardSection.COLUMN))
 							continue;
-						if(!sudokuBoard[i][j].getIsSolved()) {
-							x = sudokuBoard[i][j].getPossibleValues();
-							if(x.size() == 1) {
-								for(int y : x) {
+						if(!sudokuBoard[row][column].getIsSolved()) {
+							values = sudokuBoard[row][column].getPossibleValues();
+							if(values.size() == 1) {
+								for(int element : values) {
 									if(isBruteForced) {
-										forceInsert(i, j, y);
+										forceInsert(row, column, element);
 										continue out;
 									}
 									else {
-										insert(i, j, y);
+										insert(row, column, element);
 										continue out;
 									}
 								}
 							}
-							if(checkUnions(i, j)) 
+							if(checkUnions(row, column)) 
 								continue out;					
 						}					
 					}				
@@ -411,34 +516,25 @@ public class Board {
 		}
 		
 		private boolean forceInsert(int rowIndex, int columnIndex, int value) {
-			StackNode stackNode = new StackNode(sudokuBoard[rowIndex][columnIndex].getValue(), value, rowIndex, columnIndex);
+			StackNode stackNode = new StackNode(value, rowIndex, columnIndex);
 			values.addFirst(stackNode);
 			
 			return insert(rowIndex, columnIndex, value);			
 		}			
 		
 		public boolean checkCanOptimize(int index, BoardSection bg) {
+			if(checkSolved(index, bg))
+				return false;
 			switch(bg) {
 				case ROW:
-					if(row.get(index).containsAll(solved))
-						return false;
-					if(row.get(index).size() >= 7)
-						return false;
-					break;
+					if(rowSets.get(index).size() >= 7)
+						return false;					
 				case COLUMN:
-					if(column.get(index).containsAll(solved))
-						return false;
-					if(column.get(index).size() >= 7)
-						return false;
-					break;
+					if(columnSets.get(index).size() >= 7)
+						return false;					
 				case GROUP:
-					if(group.get(index).containsAll(solved))
-						return false;
-					if(group.get(index).size() >= 7)
-						return false;
-					break;
-				default:
-					return true;
+					if(groupSets.get(index).size() >= 7)
+						return false;									
 			}
 			return true;
 		}
@@ -446,19 +542,14 @@ public class Board {
 		public boolean checkSolved(int index, BoardSection bg) {
 			switch(bg) {
 				case ROW:
-					if(row.get(index).containsAll(solved))
-						return true;				
-					break;
+					if(rowSets.get(index).containsAll(solved))
+						return true;					
 				case COLUMN:
-					if(column.get(index).containsAll(solved))
-						return true;
-					break;
+					if(columnSets.get(index).containsAll(solved))
+						return true;					
 				case GROUP:
-					if(group.get(index).containsAll(solved))
-						return true;				
-					break;
-				default:
-					return false;
+					if(groupSets.get(index).containsAll(solved))
+						return true;
 			}
 			return false;
 		}
@@ -535,23 +626,23 @@ public class Board {
 				if(numVals == 2) {
 					opt1 = sudokuBoard[index][n].getPossibleValues();
 					loop = n;
-					for(int i = loop + 1; i < LENGTH; i++) {
-						if(sudokuBoard[index][i].getIsSolved())
+					for(int column = loop + 1; column < LENGTH; column++) {
+						if(sudokuBoard[index][column].getIsSolved())
 							continue;
-						numVals = sudokuBoard[index][i].getNumberOfPossibleValues();
+						numVals = sudokuBoard[index][column].getNumberOfPossibleValues();
 						if(numVals == 2) {
-							opt2 = sudokuBoard[index][i].getPossibleValues();
+							opt2 = sudokuBoard[index][column].getPossibleValues();
 							if(opt1.containsAll(opt2)) {
-								for(int j = 0; j < LENGTH; j++) {
-									if(j == loop || j == i)
+								for(int i = 0; i < LENGTH; i++) {
+									if(i == loop || i == column)
 										continue;
-									if(!sudokuBoard[index][j].getIsSolved()) {
-										if(sudokuBoard[index][j].removePossibleValues(opt1)) {
+									if(!sudokuBoard[index][i].getIsSolved()) {
+										if(sudokuBoard[index][i].removePossibleValues(opt1)) {
 											isOptimized = true;										
 										}
 									}
 								}
-								i = LENGTH;
+								column = LENGTH;
 							}							
 						}
 					}				
@@ -574,23 +665,23 @@ public class Board {
 				if(numVals == 2) {
 					opt1 = sudokuBoard[n][index].getPossibleValues();
 					loop = n;
-					for(int i = loop + 1; i < LENGTH; i++) {
-						if(sudokuBoard[i][index].getIsSolved())
+					for(int row = loop + 1; row < LENGTH; row++) {
+						if(sudokuBoard[row][index].getIsSolved())
 							continue;
-						numVals = sudokuBoard[i][index].getNumberOfPossibleValues();
+						numVals = sudokuBoard[row][index].getNumberOfPossibleValues();
 						if(numVals == 2) {
-							opt2 = sudokuBoard[i][index].getPossibleValues();
+							opt2 = sudokuBoard[row][index].getPossibleValues();
 							if(opt1.containsAll(opt2)) {
-								for(int j = 0; j < LENGTH; j++) {
-									if((j == loop) || (j == i))
+								for(int i = 0; i < LENGTH; i++) {
+									if((i == loop) || (i == row))
 										continue;
-									if(!sudokuBoard[j][index].getIsSolved()) {
-										if(sudokuBoard[j][index].removePossibleValues(opt1)) {
+									if(!sudokuBoard[i][index].getIsSolved()) {
+										if(sudokuBoard[i][index].removePossibleValues(opt1)) {
 											isOptimized = true;
 										}
 									}
 								}
-								i = LENGTH;
+								row = LENGTH;
 							}							
 						}
 					}				
