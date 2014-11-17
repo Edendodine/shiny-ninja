@@ -34,6 +34,16 @@ public class Board {
 		generateCellLists();
 	}
 	
+	public void clearBoard() {
+		for(int i = 0; i < LENGTH; i++) {
+			for(int j = 0; j < LENGTH; j++) {
+				if(sudokuBoard[i][j].getCanModify()) {
+					sudokuBoard[i][j].clear();
+				}
+			}
+		}
+	}
+	
 	public Board() {
 		sudokuBoard = new Cell[9][9];	
 		row = new ArrayList<HashSet<Integer>>();

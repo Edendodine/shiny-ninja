@@ -62,6 +62,13 @@ class Cell {
 		this.value = value;		
 	}
 	
+	public void clear() {
+		if(canModify) {
+			value = 0;
+			isSolved = false;
+		}
+	}
+	
 	public void setValue(int value) {
 		this.value = value;
 		if(value != 0)

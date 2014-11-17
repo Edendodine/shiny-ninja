@@ -13,6 +13,18 @@ public class tests {
 		Board mine = new Board();
 		Random rand = new Random(53);
 		
+		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(5, 7, 0, 0, 1, 0, 0, 6, 0));
+		ArrayList<Integer> row2 = new ArrayList<Integer>(Arrays.asList(0, 9, 0, 0, 6, 0, 0, 7, 0));
+		ArrayList<Integer> row3 = new ArrayList<Integer>(Arrays.asList(0, 8, 0, 0, 3, 0, 0, 9, 0));
+		ArrayList<Integer> row4 = new ArrayList<Integer>(Arrays.asList(0, 1, 0, 0, 9, 0, 0, 8, 0));
+		ArrayList<Integer> row5 = new ArrayList<Integer>(Arrays.asList(0, 2, 0, 0, 4, 0, 0, 5, 0));
+		ArrayList<Integer> row6 = new ArrayList<Integer>(Arrays.asList(0, 6, 0, 0, 2, 0, 0, 4, 0));
+		ArrayList<Integer> row7 = new ArrayList<Integer>(Arrays.asList(0, 3, 0, 0, 5, 0, 0, 2, 0));
+		ArrayList<Integer> row8 = new ArrayList<Integer>(Arrays.asList(0, 5, 0, 0, 7, 0, 0, 3, 0));
+		ArrayList<Integer> row9 = new ArrayList<Integer>(Arrays.asList(0, 4, 0, 0, 8, 0, 0, 1, 0));
+		
+		
+		/*
 		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(0, 7, 0, 2, 0, 0, 3, 0, 0));
 		ArrayList<Integer> row2 = new ArrayList<Integer>(Arrays.asList(0, 9, 6, 0, 0, 4, 0, 0, 0));
 		ArrayList<Integer> row3 = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0, 1, 3, 0, 0, 0));
@@ -24,7 +36,7 @@ public class tests {
 		ArrayList<Integer> row9 = new ArrayList<Integer>(Arrays.asList(0, 0, 8, 0, 0, 6, 0, 2, 0));		
 		
 		
-		/*
+		
 		ArrayList<Integer> row1 = new ArrayList<Integer>(Arrays.asList(6, 0, 2, 0, 0, 8, 0, 3, 0));
 		ArrayList<Integer> row2 = new ArrayList<Integer>(Arrays.asList(1, 0, 8, 0, 3, 6, 7, 0, 2));
 		ArrayList<Integer> row3 = new ArrayList<Integer>(Arrays.asList(7, 0, 0, 5, 0, 0, 8, 6, 0));
